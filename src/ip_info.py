@@ -23,7 +23,6 @@ DEALINGS IN THE SOFTWARE.
 """
 
 import json
-import pytz
 import urllib3
 from datetime import datetime
 
@@ -46,13 +45,17 @@ class IPv4info:
         https = urllib3.PoolManager()
         url = f'https://ipinfo.io/{self.ip_address}'
         try:
+            # Normal request
             response = https.request('GET', url)
             self.all_data = json.loads(response.data)
-            # Handling error
+
+            # Error occured if 'status' was inside the json response
+            # Handling errors
             if "status" in self.all_data:
                 error = self.all_data["error"]
-                raise ValueError(f"{self.all_data["status"]} {error["title"]}: {error["message"]}")
+                raise ValueError(f"{self.all_data['status']} {error['title']}: {error['message']}")
         except Exception as e:
+            # Unhandled exceptions
             raise e
         
     def __repr__(self):
@@ -120,3 +123,4 @@ class IPv4info:
     def bogon(self) -> bool:
         "Checks if the IP is a bogon address"
         return self.all_data["bogon"] if "bogon" in self.all_data else None
+
